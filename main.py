@@ -3,10 +3,13 @@ import time
 from colorama import Fore
 from colorama import Style
 from colorama import Back
+import random
 
 # story: awake in hospital
+level = 1
 health = 100
 choice = ""
+attack = ""
 playerState = {"start": True,
                "end": False,
                "door": False}
@@ -16,10 +19,35 @@ location = "hospitalBunker"
 
 
 
-def combat(enemy, health, attack) :
-    while int > 0 or health > 0:
-        attack = input("What attack will you use")
-        print(inventory)
+def combat(enemy, Ehealth, Eattack, lvl) :
+    global health
+    global attack
+    global level
+    while Ehealth > 0 and health > 0:
+        print("Inventory: " + str(inventory))
+        attack = input("What attack will you use? ")
+        attack.lower()
+        print()
+        if attack.find("sword") >= 0:
+            damage = random.choice([1,2,3,4,5,6,7,8,9,10] * level)
+            print("You swung your sword and do " + str(damage) + " damage!")
+        elif attack.find("fist") >= 0:
+            damage = random.choice([1,2,3,4,5] * level)
+            print("You go for a punch and do " + str(damage) + " damage")
+        Ehealth = Ehealth - damage
+        if Ehealth > 0:
+            Edamage = random.choice([1, 2, 3, 4, 5]) * lvl
+            print(str(enemy) + " strikes and uses " + str(Eattack) + "! You take " + str(Edamage) + " damage!")
+            health = health - Edamage
+
+    if health > 0:
+        print("You win! Leveled up and gained health increase!")
+        health = 100 + 1
+        level = level + 1
+        return True
+    else:
+        return False
+    time.sleep(3)
 
 
 
@@ -67,10 +95,12 @@ def hospitalHallway(choice):
     elif choice.find("yes") >= 0 and playerState.get("door") == True:
         print(f"{Fore.RED}Behind the door, there is a demon with fangs. You could not get away in time...{Fore.RESET}")
         playerState["end"] = True
-    elif choice.find("left") >= 0 or choice.find("hallway") >= 0:
+    elif choice.find("left") >= 0 or choice.find("hallway") >= 0 or (choice.find("no") >= 0 and playerState.get("door") ==True):
         print(f"{Fore.RED}You continue walking down the path. Strange noises can continue being heard...{Fore.RESET}")
         location = "hospitalLobby"
         playerState["start"] = True
+    elif choice == "":
+        print("")
     else:
         print("I do not understand")
 
@@ -93,18 +123,55 @@ def hospitalLobby(choice):
     elif choice.find("left") >= 0 or choice.find("object") >= 0:
         print(f"{Fore.LIGHTRED_EX}The artifact is a sword! You pick up the weapon{Fore.RESET}")
         print("Whats a sword doing in a hospital?")
+        inventory.append("Sword")
     elif choice.find("straight") >= 0 or choice.find("leave") >= 0 or choice.find("exit") >= 0:
         print(f"{Fore.GREEN}NOT SO FAST!{Fore.RESET}")
         time.sleep(3)
         print("A strange creature with wings emerges from the darkness.")
         print(f"{Fore.GREEN}I CHALLENGE YOU TO A DUEL! LET'S SEE WHO'S THE STRONGEST AROUND HERE!")
-        print(f"{Fore.BLUE}You have engaged in combat")
-        combat(30)
-        print("You leave the hospital")
+        time.sleep(3)
+        print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
+        time.sleep(3)
+        if combat("Fanged Foe", 20, "strike", 1) == True:
+            print(f"{Fore.LIGHTRED_EX}You leave the hospital{Fore.RESET}")
+            location = "open world"
+            playerState["start"] = True
+        else:
+            playerState["end"] = True
 
+
+def openWorld(choice):
+    global location
+    if playerState.get("start"):
+        print(f"{Fore.LIGHTRED_EX}You step outside and see the barren wasteland left behind. The sky is red and all "
+              f"that's left of what used to be around the hospital has all but been trend to dust. To your right in "
+              f"the distance is the city. To your left is an old temple. Strange noises continue to be heard. {Fore.RESET}")
+        print("Demons, this place is crawling with them. I need to find someone.")
+        playerState["start"] = False
+    print(f"{Fore.LIGHTRED_EX}Where will you go?{Fore.RESET}")
+    if choice.find("right") >= 0 or choice.find("city") >= 0:
+        print(f"{Fore.LIGHTRED_EX}You have decided to go to the city{Fore.RESET}")
+        location = "city"
+    elif choice.find("left") >= 0 or choice.find("temple") >= 0:
+        print(f"{Fore.LIGHTRED_EX}You have decided to go to the temple{Fore.RESET}")
+        location = "temple"
+    elif choice == "":
+        print()
+    else:
+        print("We need to do something...")
+
+
+def temple(choice):
+    print()
+
+def city(choice):
+    print(f"{Fore.LIGHTRED_EX}The city is in ruins. You look around. To the right is something shiny. To the left is "
+          f"another area. Straight ahead, there seems to be an entrance to the underground mall{Fore.RESET}")
 
 # Start of Program
 print(f"{Fore.BLACK}...{Fore.RESET}")
+inventory.append("Fists")
+clearScreen()
 while not playerState.get("end"):
     if location == "hospitalBunker":
         hospitalBunker(choice)
@@ -112,6 +179,12 @@ while not playerState.get("end"):
         hospitalHallway(choice)
     elif location == "hospitalLobby":
         hospitalLobby(choice)
+    elif location == "open world":
+        openWorld(choice)
+    elif location == "temple":
+        temple(choice)
+    elif location == "city":
+        city(choice)
     choice = input("Enter command: ")
     choice = choice.lower()
     clearScreen()
