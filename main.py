@@ -6,34 +6,59 @@ from colorama import Back
 import random
 
 # story: awake in hospital
-level = 1
+playerLevel = 1
 health = 100
 choice = ""
 attack = ""
 playerState = {"start": True,
                "end": False,
-               "door": False}
+               "door": False,
+               "city": False,
+               "temple": True}
 
 inventory = []
 location = "hospitalBunker"
 
 
 
+def findItem(item):
+    for i in range(len(inventory)):
+        if i == item:
+            return True
+    return False
+
 def combat(enemy, Ehealth, Eattack, lvl) :
     global health
     global attack
-    global level
+    global playerLevel
     while Ehealth > 0 and health > 0:
         print("Inventory: " + str(inventory))
+        if findItem("Book of Spells") == True:
+            print("Spells: Fire Spell, Poison Spell, Healing Spell")
         attack = input("What attack will you use? ")
         attack.lower()
         print()
         if attack.find("sword") >= 0:
-            damage = random.choice([1,2,3,4,5,6,7,8,9,10] * level)
+            damage = random.choice([1,2,3,4,5,6,7,8,9,10] * playerLevel)
             print("You swung your sword and do " + str(damage) + " damage!")
         elif attack.find("fist") >= 0:
-            damage = random.choice([1,2,3,4,5] * level)
+            damage = random.choice([1,2,3,4,5] * playerLevel)
             print("You go for a punch and do " + str(damage) + " damage")
+        elif attack.find("axe") >= 0:
+            damage = random.choice([2, 4, 6, 8]) * playerLevel
+            print("You swing the mighty axe and do " + str(damage) + " damage")
+        elif attack.find("Fire") >= 0 and findItem("Book of Spells") == True:
+            damage = random.choice([3, 5, 7, 9]) * playerLevel
+            print("You conjure a fireball and do " + str(damage) + " damage")
+        elif attack.find("poison") >= 0 and findItem("Book of Spells") == True:
+            numAttck = random.choice([1,2,3,4])
+            damage = random.choice([1,2,3,4,5])
+            damage = numAttck * damage
+            print("You struck with posion darts " + str(numAttck) + " times and did " + str(damage) + " total damage!")
+        elif attack.find("Healing") >= 0 and findItem("Book of Spells") == True:
+            healthGained = random.choice([1,2,3,4]) * playerLevel
+            print("You gained " + str(healthGained) + " health")
+            health = health + healthGained
         Ehealth = Ehealth - damage
         if Ehealth > 0:
             Edamage = random.choice([1, 2, 3, 4, 5]) * lvl
@@ -43,7 +68,7 @@ def combat(enemy, Ehealth, Eattack, lvl) :
     if health > 0:
         print("You win! Leveled up and gained health increase!")
         health = 100 + 1
-        level = level + 1
+        playerLevel = playerLevel + 1
         return True
     else:
         return False
@@ -148,7 +173,7 @@ def openWorld(choice):
               f"the distance is the city. To your left is an old temple. Strange noises continue to be heard. {Fore.RESET}")
         print("Demons, this place is crawling with them. I need to find someone.")
         playerState["start"] = False
-    print(f"{Fore.LIGHTRED_EX}Where will you go?{Fore.RESET}")
+    print(f"{Fore.LIGHTRED_EX}Your are in the open world. Where will you go?{Fore.RESET}")
     if choice.find("right") >= 0 or choice.find("city") >= 0:
         print(f"{Fore.LIGHTRED_EX}You have decided to go to the city{Fore.RESET}")
         location = "city"
@@ -162,11 +187,39 @@ def openWorld(choice):
 
 
 def temple(choice):
-    print()
+    global location
+    if playerState.get("temple") == False:
+        print(f"{Fore.LIGHTRED_EX}The temple is in ruins...{Fore.RESET}")
+        time.sleep(3)
+        print(f"{Fore.RED}You sense a terrifying presence inside the temple. Will you head inside?{Fore.RESET}")
+
+    if choice.find("yes") >= 0:
+        print(f"{Fore.RED}You've come face to face with another demon beast{Fore.RESET}")
+        print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
+        time.sleep(3)
+        combat("Titanomachia", 50, "Vicious Strike", 3)
+        if combat("Titanomachia", 50, "Vicious Strike", 3) == True:
+            print(f"{Fore.LIGHTRED_EX}You have defeated the beast. Inside the temple is a silent atmosphere. A single {Fore.GREEN}altar{Fore.LIGHTRED_EX} sits alone.{Fore.RESET}")
+            if choice.find("altar") >= 0:
+                print(f"{Fore.LIGHTRED_EX}You search the altar and find a {Fore.CYAN}Book of Spells{Fore.LIGHTRED_EX}")
+                inventory.append("Book of Spells")
+            else:
+                print("")
+    if choice.find("leave") >= 0 or choice.find("exit") >= 0:
+        location = "open world"
+        print(f"{Fore.LIGHTRED_EX}You left the temple{Fore.RESET}")
+
 
 def city(choice):
-    print(f"{Fore.LIGHTRED_EX}The city is in ruins. You look around. To the right is something shiny. To the left is "
-          f"another area. Straight ahead, there seems to be an entrance to the underground mall{Fore.RESET}")
+    if playerState.get("start") == True:
+        print(f"{Fore.LIGHTRED_EX}The city is in ruins. You look around. To the right is something shiny. To the left "
+              f"is another area. Straight ahead, there seems to be an entrance to the underground mall{Fore.RESET}")
+    print(f"{Fore.LIGHTRED_EX}What will you do?{Fore.RESET}")
+    if choice.find("right") >= 0:
+        print(f"{Fore.LIGHTRED_EX}You search and find a {Fore.GREEN}Nordic Axe{Fore.LIGHTRED_EX}!")
+        inventory.append("Axe")
+
+
 
 # Start of Program
 print(f"{Fore.BLACK}...{Fore.RESET}")
