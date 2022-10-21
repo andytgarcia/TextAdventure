@@ -34,19 +34,19 @@ def combat(enemy, Ehealth, Eattack, lvl) :
     global playerLevel
     while Ehealth > 0 and health > 0:
         print("Inventory: " + str(inventory))
-        if findItem("Book of Spells") == True:
+        if findItem("Book of Spells"):
             print("Spells: Fire Spell, Poison Spell, Healing Spell")
         attack = input("What attack will you use? ")
         attack.lower()
         print()
-        if attack.find("sword") >= 0:
-            damage = random.choice([1,2,3,4,5,6,7,8,9,10] * playerLevel)
+        if attack.find("sword") >= 0 and findItem("sword"):
+            damage = random.choice([2,3,4,5,6,7,8,9,10] * playerLevel)
             print("You swung your sword and do " + str(damage) + " damage!")
         elif attack.find("fist") >= 0:
             damage = random.choice([1,2,3,4,5] * playerLevel)
             print("You go for a punch and do " + str(damage) + " damage")
-        elif attack.find("axe") >= 0:
-            damage = random.choice([2, 4, 6, 8]) * playerLevel
+        elif attack.find("axe") >= 0 and findItem("axe"):
+            damage = random.choice([6, 8, 10]) * playerLevel
             print("You swing the mighty axe and do " + str(damage) + " damage")
         elif attack.find("Fire") >= 0 and findItem("Book of Spells") == True:
             damage = random.choice([3, 5, 7, 9]) * playerLevel
@@ -73,7 +73,6 @@ def combat(enemy, Ehealth, Eattack, lvl) :
         return True
     else:
         return False
-    time.sleep(3)
 
 
 
@@ -122,10 +121,14 @@ def hospitalHallway(choice):
         print(f"{Fore.RED}You sense a terrifying presence behind this door. Do you wish to continue?{Fore.RESET}")
         playerState["door"] = True
     elif choice.find("yes") >= 0 and playerState.get("door") == True:
-        print(f"{Fore.RED}Behind the door, there is a demon with fangs. You could not get away in time...{Fore.RESET}")
-        playerState["end"] = True
+        print(f"{Fore.RED}Behind the door, there is a demon with fangs.{Fore.RESET}")
+        print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
+        combat("Baphomet", 500, "Dark Fang", 10)
+        if combat("Baphomet", 500, "Dark Fang", 10) == False:
+            playerState["end"] = True
     elif choice.find("left") >= 0 or choice.find("hallway") >= 0 or (choice.find("no") >= 0 and playerState.get("door") ==True):
         print(f"{Fore.RED}You continue walking down the path. Strange noises can continue being heard...{Fore.RESET}")
+        print("[Press Enter]")
         location = "hospitalLobby"
         playerState["start"] = True
     elif choice == "":
@@ -143,12 +146,13 @@ def hospitalLobby(choice):
         print("I'm in a hospital")
         time.sleep(3)
         print(f"{Fore.LIGHTRED_EX}There is a shattered mirror to the right. To the left, it looks like there is a "
-              f"strange object. The exit is straight forward{Fore.RESET}")
+              f"strange object. The exit is straight ahead{Fore.RESET}")
         print(f"{Fore.LIGHTRED_EX}What will you do?{Fore.RESET}")
+        print("[Right] [Left] ")
         playerState["start"] = False
     if choice.find("right") >= 0 or choice.find("mirror") >= 0:
-        print(
-            f"{Fore.LIGHTRED_EX}You see your reflection in the mirror. You are bearing strange tattoos...{Fore.RESET}")
+        print(f"{Fore.LIGHTRED_EX}You see your reflection in the mirror. You are bearing strange tattoos...{Fore.RESET}")
+        print("[Left] [Exit]")
     elif choice.find("left") >= 0 or choice.find("object") >= 0:
         print(f"{Fore.LIGHTRED_EX}The artifact is a sword! You pick up the weapon{Fore.RESET}")
         print("Whats a sword doing in a hospital?")
@@ -164,7 +168,7 @@ def hospitalLobby(choice):
         time.sleep(3)
         if combat("Fanged Foe", 20, "strike", 1) == True:
             print(f"{Fore.LIGHTRED_EX}You leave the hospital{Fore.RESET}")
-            print("[Press Enter")
+            print("[Press Enter]")
             location = "open world"
             playerState["start"] = True
         else:
@@ -200,7 +204,7 @@ def temple(choice):
         print(f"{Fore.LIGHTRED_EX}The temple is in ruins...{Fore.RESET}")
         time.sleep(3)
         print(f"{Fore.RED}You sense a terrifying presence inside the temple. Will you head inside?{Fore.RESET}")
-
+        playerState["temple"] = True;
     if choice.find("yes") >= 0:
         print(f"{Fore.RED}You've come face to face with another demon beast{Fore.RESET}")
         print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
@@ -213,6 +217,8 @@ def temple(choice):
                 inventory.append("Book of Spells")
             else:
                 print("")
+        else:
+            playerState["end"] = True
     if choice.find("leave") >= 0 or choice.find("exit") >= 0:
         location = "open world"
         print(f"{Fore.LIGHTRED_EX}You left the temple{Fore.RESET}")
@@ -293,4 +299,5 @@ while not playerState.get("end"):
     choice = choice.lower()
     clearScreen()
 
+print("''Death is not the end.....''")
 print("GAME OVER")
