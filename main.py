@@ -23,13 +23,13 @@ location = "hospitalBunker"
 
 
 def findItem(item):
-    for i in range(len(inventory)):
-        if i == item:
+    if item in inventory:
             return True
     return False
 
 def combat(enemy, Ehealth, Eattack, lvl) :
     global health
+    global damage
     global attack
     global playerLevel
     while Ehealth > 0 and health > 0:
@@ -39,7 +39,7 @@ def combat(enemy, Ehealth, Eattack, lvl) :
         attack = input("What attack will you use? ")
         attack.lower()
         print()
-        if attack.find("sword") >= 0 and findItem("sword"):
+        if attack.find("sword") >= 0:
             damage = random.choice([2,3,4,5,6,7,8,9,10] * playerLevel)
             print("You swung your sword and do " + str(damage) + " damage!")
         elif attack.find("fist") >= 0:
@@ -60,6 +60,8 @@ def combat(enemy, Ehealth, Eattack, lvl) :
             healthGained = random.choice([1,2,3,4]) * playerLevel
             print("You gained " + str(healthGained) + " health")
             health = health + healthGained
+            damage = 0
+
         Ehealth = Ehealth - damage
         if Ehealth > 0:
             Edamage = random.choice([1, 2, 3, 4, 5]) * lvl
@@ -209,16 +211,17 @@ def temple(choice):
         print(f"{Fore.RED}You've come face to face with another demon beast{Fore.RESET}")
         print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
         time.sleep(3)
-        combat("Titanomachia", 50, "Vicious Strike", 3)
         if combat("Titanomachia", 50, "Vicious Strike", 3) == True:
             print(f"{Fore.LIGHTRED_EX}You have defeated the beast. Inside the temple is a silent atmosphere. A single {Fore.GREEN}altar{Fore.LIGHTRED_EX} sits alone.{Fore.RESET}")
-            if choice.find("altar") >= 0:
-                print(f"{Fore.LIGHTRED_EX}You search the altar and find a {Fore.CYAN}Book of Spells{Fore.LIGHTRED_EX}")
-                inventory.append("Book of Spells")
-            else:
-                print("")
         else:
             playerState["end"] = True
+    if choice.find("altar") >= 0:
+        print(f"{Fore.LIGHTRED_EX}You search the altar and find a {Fore.CYAN}Book of Spells{Fore.RESET}")
+        inventory.append("Book of Spells")
+        print("[Leave Temple]")
+    else:
+        print("")
+
     if choice.find("leave") >= 0 or choice.find("exit") >= 0:
         location = "open world"
         print(f"{Fore.LIGHTRED_EX}You left the temple{Fore.RESET}")
@@ -241,24 +244,21 @@ def city(choice):
         playerState["mall key"] = True
     elif choice.find("go back") >= 0:
         print(f"{Fore.LIGHTRED_EX}You are back in the main area of the city.{Fore.RESET}")
-    elif choice.find("go underground") >= 0:
+    elif choice.find("go underground") >= 0 or choice.find("go straight"):
         if playerState.get("mall key") == True:
             print(f"{Fore.LIGHTRED_EX}You open the door to find that there are enemies lined up in sequential order. "
                   f"You must take them down{Fore.RESET}")
             time.sleep(3)
             print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
-            combat("Pyro Jack", 25, "Slash", 2)
             if combat("Pyro Jack", 25, "Slash", 2):
                 print()
                 time.sleep(3)
                 print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
-                combat("Jack Frost", 35, "Frostbite", 2)
                 if combat("Jack Frost", 35, "Frostbite", 2):
                     print()
                     time.sleep(3)
                     print(f"{Fore.LIGHTRED_EX}The final enemy shows itself{Fore.RESET}")
                     print(f"{Fore.BLUE}You have engaged in combat{Fore.RESET}")
-                    combat("King Jack", 150, "Final Order", 7)
                     if combat("King Jack", 150, "Final Order", 7):
                         print(f"{Fore.LIGHTRED_EX}After the long battle, an item was dropped:")
                         print(f"{Fore.LIGHTRED_EX}You found a {Fore.GREEN}chalice of the underworld{Fore.RESET}")
